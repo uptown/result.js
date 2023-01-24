@@ -1,8 +1,7 @@
-
 export default class Result<T> {
   private readonly value: any;
 
-  constructor(value: any) {
+  private constructor(value: any) {
     this.value = value;
   }
 
@@ -22,14 +21,19 @@ export default class Result<T> {
     return new Result(createFailure(exception));
   }
 
-  static of<T>(func: () => Promise<T>): Promise<Result<T>>{
+  static of<T>(func: () => Promise<T>): Promise<Result<T>>;
+  static of<T>(func: () => T): Result<T>;
+  static of<T>(func: () => any) {
     try {
       const ret = func()
-      return ret.then((v) => new Result<T>(v)).catch((exception) => {
-        return new Result<T>(createFailure(exception));
-      })
+      if (ret.then) {
+        return ret.then((v: T) => Result.success(v)).catch((exception: Error) => {
+          return Result.failure(exception);
+        })
+      }
+      return Result.success(ret)
     } catch (exception: any) {
-      return Promise.resolve(new Result<T>(createFailure(exception)));
+      return Result.failure(exception)
     }
   }
 
@@ -52,7 +56,7 @@ export default class Result<T> {
   }
 
   getOrElse<R extends T>(onFailure: (exception: Error) => R): R {
-    if(this.isFailure){
+    if (this.isFailure) {
       return onFailure(this.value.exception)
     }
     return this.value as R
