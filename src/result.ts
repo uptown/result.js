@@ -23,15 +23,19 @@ export default class Result<T> {
 
   static of<T>(func: () => Promise<T>): Promise<Result<T>>;
   static of<T>(func: () => T): Result<T>;
-  static of<T>(func: () => any) {
+  static of<T>(value: T): Result<T>;
+  static of<T>(funcOrValue: (() => any) | T) {
     try {
-      const ret = func()
-      if (ret.then) {
-        return ret.then((v: T) => Result.success(v)).catch((exception: Error) => {
-          return Result.failure(exception);
-        })
+      if (typeof funcOrValue === 'function') {
+        const ret = (funcOrValue as (() => any))()
+        if (ret.then) {
+          return ret.then((v: T) => Result.success(v)).catch((exception: Error) => {
+            return Result.failure(exception);
+          })
+        }
+        return Result.success(ret)
       }
-      return Result.success(ret)
+      return Result.success(funcOrValue);
     } catch (exception: any) {
       return Result.failure(exception)
     }

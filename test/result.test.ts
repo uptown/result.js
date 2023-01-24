@@ -3,7 +3,7 @@ import {Result} from "../src";
 
 describe("Result.js", function () {
   test("success", async function () {
-    const ret = new Result("asd")
+    const ret = Result.success("asd")
 
     expect(ret.isSuccess).toBeTruthy()
     expect(ret.isFailure).toBeFalsy()
@@ -14,5 +14,25 @@ describe("Result.js", function () {
     const ret = Result.failure(new Error("asd"))
 
     expect(ret.isSuccess).toBeFalsy()
+  })
+  test("of value", async function () {
+    const ret = Result.of("asd")
+
+    expect(ret.getOrThrow()).toEqual("asd")
+  })
+  test("of function", async function () {
+    const ret = Result.of(() => "asd")
+
+    expect(ret.getOrThrow()).toEqual("asd")
+  })
+  test("of async function", async function () {
+    const ret = await Result.of(async () => "asd")
+
+    expect(ret.getOrThrow()).toEqual("asd")
+  })
+  test("of async function error", async function () {
+    const ret = await Result.of(async () => {throw new Error("asd")})
+
+    expect(() => ret.getOrThrow()) .toThrowError(new Error("asd"))
   })
 })
