@@ -1,3 +1,6 @@
+import {FailureResult, PromiseResult, ResultUnknown, SuccessResult} from "./types";
+import Failure from "./failure";
+
 export default class Result<T> {
   private readonly value: any;
 
@@ -5,25 +8,20 @@ export default class Result<T> {
     this.value = value;
   }
 
-  get isSuccess(): boolean {
-    return !(this.value instanceof Failure);
+  static success<T>(value: T): SuccessResult<T> {
+    return new Result(value) as unknown as SuccessResult<T>;
   }
 
-  get isFailure(): boolean {
-    return this.value instanceof Failure;
+  static failure<T>(exception: Error): FailureResult<T> {
+    return new Result(Failure.createFailure(exception)) as unknown as FailureResult<T>;
   }
 
-  static success<T>(value: T): Result<T> {
-    return new Result(value);
-  }
+  static of<T>(func: () => Promise<T>): PromiseResult<T>;
 
-  static failure<T>(exception: Error): Result<T> {
-    return new Result(createFailure(exception));
-  }
+  static of<T>(func: () => T): ResultUnknown<T>;
 
-  static of<T>(func: () => Promise<T>): Promise<Result<T>>;
-  static of<T>(func: () => T): Result<T>;
-  static of<T>(value: T): Result<T>;
+  static of<T>(value: T): ResultUnknown<T>;
+
   static of<T>(funcOrValue: (() => any) | T) {
     try {
       if (typeof funcOrValue === 'function') {
@@ -41,8 +39,16 @@ export default class Result<T> {
     }
   }
 
+  isSuccess(): this is SuccessResult<T> {
+    return !(this.value instanceof Failure);
+  }
+
+  isFailure(): this is FailureResult<T> {
+    return this.value instanceof Failure;
+  }
+
   getOrNull(): T | null {
-    if (this.isFailure) {
+    if (this.isFailure()) {
       return null;
     } else {
       return this.value as T;
@@ -60,7 +66,7 @@ export default class Result<T> {
   }
 
   getOrElse<R extends T>(onFailure: (exception: Error) => R): R {
-    if (this.isFailure) {
+    if (this.isFailure()) {
       return onFailure(this.value.exception)
     }
     return this.value as R
@@ -74,6 +80,14 @@ export default class Result<T> {
     }
   }
 
+  exception(): Error {
+    if (this.value instanceof Failure) {
+      return this.value.exception;
+    } else {
+      throw new TypeError(`${this} isn't failed.`)
+    }
+  }
+
   toString(): string {
     if (this.value instanceof Failure) {
       return this.value.toString();
@@ -83,18 +97,3 @@ export default class Result<T> {
   }
 }
 
-class Failure {
-  exception: Error;
-
-  constructor(exception: Error) {
-    this.exception = exception;
-  }
-
-  toString(): string {
-    return `Failure(${this.exception})`;
-  }
-}
-
-function createFailure(exception: Error): Failure {
-  return new Failure(exception);
-}

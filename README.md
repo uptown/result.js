@@ -13,7 +13,7 @@
 ## Examples
 
 ```typescript
-import Result from " @leejuyoung/result";
+import Result from "@leejuyoung/result";
 
 function doSomething(): Result<string> {
   try {
@@ -30,7 +30,7 @@ if(doSomething().isSuccess){
 ```
 
 ```typescript
-import Result from " @leejuyoung/result";
+import Result from "@leejuyoung/result";
 
 async function doSomething(): Promise<Result<string>> {
   await Result.of(async () => {
