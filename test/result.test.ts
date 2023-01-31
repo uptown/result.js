@@ -38,7 +38,7 @@ describe("Result.js", function () {
     expect(() => ret.getOrThrow()).toThrowError(new Error("asd"))
   })
   test("type checking", async function () {
-    const ret = await Result.of(async () => "asd")
+    const ret = await Result.of<string, DOMException>(async () => "asd")
 
     if (ret.isFailure()) {
       if (ret) {

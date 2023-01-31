@@ -1,28 +1,28 @@
-import {FailureResult, PromiseResult, ResultUnknown, SuccessResult} from "./types";
+import { FailureResult, PromiseResult, ResultUnknown, SuccessResult } from "./types";
 import Failure from "./failure";
 
-export default class Result<T> {
+export default class Result<T, ExplicitErrorType extends Error = Error> {
   private readonly value: any;
 
   private constructor(value: any) {
     this.value = value;
   }
 
-  static success<T>(value: T): SuccessResult<T> {
-    return new Result(value) as unknown as SuccessResult<T>;
+  static success<T, ExplicitErrorType extends Error = Error>(value: T): SuccessResult<T, ExplicitErrorType> {
+    return new Result(value) as unknown as SuccessResult<T, ExplicitErrorType>;
   }
 
-  static failure<T>(exception: Error): FailureResult<T> {
-    return new Result(Failure.createFailure(exception)) as unknown as FailureResult<T>;
+  static failure<T, ExplicitErrorType extends Error = Error>(exception: ExplicitErrorType): FailureResult<T, ExplicitErrorType> {
+    return new Result(Failure.createFailure(exception)) as unknown as FailureResult<T, ExplicitErrorType>;
   }
 
-  static of<T>(func: () => Promise<T>): PromiseResult<T>;
+  static of<T, ExplicitErrorType extends Error = Error>(func: () => Promise<T>): PromiseResult<T, ExplicitErrorType>;
 
-  static of<T>(func: () => T): ResultUnknown<T>;
+  static of<T, ExplicitErrorType extends Error = Error>(func: () => T): ResultUnknown<T, ExplicitErrorType>;
 
-  static of<T>(value: T): ResultUnknown<T>;
+  static of<T, ExplicitErrorType extends Error = Error>(value: T): ResultUnknown<T, ExplicitErrorType>;
 
-  static of<T>(funcOrValue: (() => any) | T) {
+  static of<T, ExplicitErrorType extends Error = Error>(funcOrValue: (() => any) | T) {
     try {
       if (typeof funcOrValue === 'function') {
         const ret = (funcOrValue as (() => any))()
@@ -39,11 +39,11 @@ export default class Result<T> {
     }
   }
 
-  isSuccess(): this is SuccessResult<T> {
+  isSuccess(): this is SuccessResult<T, ExplicitErrorType> {
     return !(this.value instanceof Failure);
   }
 
-  isFailure(): this is FailureResult<T> {
+  isFailure(): this is FailureResult<T, ExplicitErrorType> {
     return this.value instanceof Failure;
   }
 
@@ -72,7 +72,7 @@ export default class Result<T> {
     return this.value as R
   }
 
-  exceptionOrNull(): Error | null {
+  exceptionOrNull(): ExplicitErrorType | Error | null {
     if (this.value instanceof Failure) {
       return this.value.exception;
     } else {
@@ -80,7 +80,7 @@ export default class Result<T> {
     }
   }
 
-  exception(): Error {
+  exception(): ExplicitErrorType | Error {
     if (this.value instanceof Failure) {
       return this.value.exception;
     } else {
