@@ -20,6 +20,7 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
 
   static of<T, ExplicitErrorType extends Error = Error>(func: () => T): ResultUnknown<T, ExplicitErrorType>;
 
+  static of<T, ExplicitErrorType extends Error = Error>(value: Promise<T>): PromiseResult<T, ExplicitErrorType>;
   static of<T, ExplicitErrorType extends Error = Error>(value: T): ResultUnknown<T, ExplicitErrorType>;
 
   static of<T, ExplicitErrorType extends Error = Error>(funcOrValue: (() => any) | T) {
@@ -32,6 +33,11 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
           })
         }
         return Result.success(ret)
+      }
+      if((funcOrValue as Promise<T>).then){
+        return (funcOrValue as Promise<T>).then((v: T) => Result.success(v)).catch((exception: Error) => {
+          return Result.failure(exception);
+        })
       }
       return Result.success(funcOrValue);
     } catch (exception: any) {

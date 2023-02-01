@@ -20,6 +20,11 @@ describe("Result.js", function () {
 
     expect(ret.getOrThrow()).toEqual("asd")
   })
+  test("of async value", async function () {
+    const ret = await Result.of(Promise.resolve("asd"))
+
+    expect(ret.getOrThrow()).toEqual("asd")
+  })
   test("of function", async function () {
     const ret = Result.of(() => "asd")
 
