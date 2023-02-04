@@ -1,7 +1,7 @@
 import { FailureResult, SuccessResult } from "./types";
 import Failure from "./failure";
 
-export default class Result<T, ExplicitErrorType extends Error = Error> implements SuccessResult<T, ExplicitErrorType>, FailureResult<T, ExplicitErrorType> {
+export default class Result<T, ExplicitErrorType extends Error = Error> {
   private readonly value: any;
 
   private constructor(value: any) {
@@ -53,8 +53,6 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
     return this.value instanceof Failure;
   }
 
-  getOrNull(): T;
-  getOrNull(): null;
   getOrNull(): T | null {
     if (this.isFailure()) {
       return null;
@@ -63,14 +61,10 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
     }
   }
 
-  throwOnFailure(): never;
-  throwOnFailure(): void;
   throwOnFailure() {
     if (this.value instanceof Failure) throw this.value.exception
   }
 
-  getOrThrow(): T;
-  getOrThrow(): never;
   getOrThrow(): T {
     this.throwOnFailure()
     return this.value as T
@@ -83,8 +77,6 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
     return (this as Result<T>).value as R
   }
 
-  exceptionOrNull(): null;
-  exceptionOrNull(): ExplicitErrorType | Error;
   exceptionOrNull(): ExplicitErrorType | Error | null {
     if (this.value instanceof Failure) {
       return this.value.exception;
@@ -93,8 +85,6 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
     }
   }
 
-  exception(): never;
-  exception(): ExplicitErrorType | Error;
   exception(): ExplicitErrorType | Error {
     if (this.value instanceof Failure) {
       return this.value.exception;

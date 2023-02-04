@@ -46,10 +46,7 @@ describe("Result.js", function () {
     const ret = await Result.of<string, DOMException>(async () => "asd")
 
     if (ret.isFailure()) {
-      if (ret) {
-
-      }
-      const exception = ret.exceptionOrNull()
+      const exception = ret.exception()
       if (exception.message) {
 
       }
