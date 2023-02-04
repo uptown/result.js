@@ -1,4 +1,4 @@
-import { FailureResult, PromiseResult, ResultUnknown, SuccessResult } from "./types";
+import { FailureResult, SuccessResult } from "./types";
 import Failure from "./failure";
 
 export default class Result<T, ExplicitErrorType extends Error = Error> implements SuccessResult<T, ExplicitErrorType>, FailureResult<T, ExplicitErrorType> {
@@ -18,10 +18,10 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
 
   static of<T, ExplicitErrorType extends Error = Error>(func: () => Promise<T>): PromiseResult<T, ExplicitErrorType>;
 
-  static of<T, ExplicitErrorType extends Error = Error>(func: () => T): ResultUnknown<T, ExplicitErrorType>;
+  static of<T, ExplicitErrorType extends Error = Error>(func: () => T): Result<T, ExplicitErrorType>;
 
   static of<T, ExplicitErrorType extends Error = Error>(value: Promise<T>): PromiseResult<T, ExplicitErrorType>;
-  static of<T, ExplicitErrorType extends Error = Error>(value: T): ResultUnknown<T, ExplicitErrorType>;
+  static of<T, ExplicitErrorType extends Error = Error>(value: T): SuccessResult<T, ExplicitErrorType>;
 
   static of<T, ExplicitErrorType extends Error = Error>(funcOrValue: (() => any) | T) {
     try {
@@ -112,3 +112,7 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
   }
 }
 
+
+export type PromiseResult<T, ExplicitErrorType extends Error = Error> = Promise<Result<T, ExplicitErrorType>>
+// https://github.com/Microsoft/TypeScript/issues/12776
+export const PromiseResult = Promise

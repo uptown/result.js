@@ -38,8 +38,3 @@ export interface FailureResult<T, ExplicitErrorType extends Error = Error> {
   toString(): string;
 }
 
-export type ResultUnknown<T, ExplicitErrorType extends Error = Error> = (SuccessResult<T, ExplicitErrorType> | FailureResult<T, ExplicitErrorType>)
-
-export type PromiseResult<T, ExplicitErrorType extends Error = Error> = Promise<ResultUnknown<T, ExplicitErrorType>>
-// https://github.com/Microsoft/TypeScript/issues/12776
-export const PromiseResult = Promise
