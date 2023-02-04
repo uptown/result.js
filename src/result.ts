@@ -21,7 +21,7 @@ export default class Result<T, ExplicitErrorType extends Error = Error> implemen
   static of<T, ExplicitErrorType extends Error = Error>(func: () => T): Result<T, ExplicitErrorType>;
 
   static of<T, ExplicitErrorType extends Error = Error>(value: Promise<T>): PromiseResult<T, ExplicitErrorType>;
-  static of<T, ExplicitErrorType extends Error = Error>(value: T): SuccessResult<T, ExplicitErrorType>;
+  static of<T, ExplicitErrorType extends Error = Error>(value: T): Result<T, ExplicitErrorType>;
 
   static of<T, ExplicitErrorType extends Error = Error>(funcOrValue: (() => any) | T) {
     try {
