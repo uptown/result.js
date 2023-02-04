@@ -1,5 +1,5 @@
 import {expect} from "@jest/globals";
-import {Result} from "../src";
+import {Result} from "../dist";
 
 describe("Result.js", function () {
   test("success", async function () {

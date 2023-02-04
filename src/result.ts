@@ -1,7 +1,7 @@
 import { FailureResult, PromiseResult, ResultUnknown, SuccessResult } from "./types";
 import Failure from "./failure";
 
-export default class Result<T, ExplicitErrorType extends Error = Error> {
+export default class Result<T, ExplicitErrorType extends Error = Error> implements SuccessResult<T, ExplicitErrorType>, FailureResult<T, ExplicitErrorType> {
   private readonly value: any;
 
   private constructor(value: any) {
@@ -34,7 +34,7 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
         }
         return Result.success(ret)
       }
-      if((funcOrValue as Promise<T>).then){
+      if ((funcOrValue as Promise<T>).then) {
         return (funcOrValue as Promise<T>).then((v: T) => Result.success(v)).catch((exception: Error) => {
           return Result.failure(exception);
         })
@@ -53,19 +53,24 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
     return this.value instanceof Failure;
   }
 
+  getOrNull(): T;
+  getOrNull(): null;
   getOrNull(): T | null {
     if (this.isFailure()) {
       return null;
     } else {
-      return this.value as T;
+      return (this as Result<T>).value as T;
     }
   }
 
+  throwOnFailure(): never;
+  throwOnFailure(): void;
   throwOnFailure() {
     if (this.value instanceof Failure) throw this.value.exception
   }
 
-
+  getOrThrow(): T;
+  getOrThrow(): never;
   getOrThrow(): T {
     this.throwOnFailure()
     return this.value as T
@@ -75,9 +80,11 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
     if (this.isFailure()) {
       return onFailure(this.value.exception)
     }
-    return this.value as R
+    return (this as Result<T>).value as R
   }
 
+  exceptionOrNull(): null;
+  exceptionOrNull(): ExplicitErrorType | Error;
   exceptionOrNull(): ExplicitErrorType | Error | null {
     if (this.value instanceof Failure) {
       return this.value.exception;
@@ -86,6 +93,8 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
     }
   }
 
+  exception(): never;
+  exception(): ExplicitErrorType | Error;
   exception(): ExplicitErrorType | Error {
     if (this.value instanceof Failure) {
       return this.value.exception;
