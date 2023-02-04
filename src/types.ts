@@ -1,4 +1,8 @@
-export interface SuccessResult<T, ExplicitErrorType extends Error = Error> {
+import Failure from './failure';
+
+export declare class SuccessResult<T, ExplicitErrorType extends Error = Error> {
+  private readonly value: T;
+  private constructor();
   isSuccess(): this is SuccessResult<T, ExplicitErrorType>;
 
   isFailure(): this is FailureResult<T, ExplicitErrorType>;
@@ -18,7 +22,9 @@ export interface SuccessResult<T, ExplicitErrorType extends Error = Error> {
   toString(): string;
 }
 
-export interface FailureResult<T, ExplicitErrorType extends Error = Error> {
+export declare class FailureResult<T, ExplicitErrorType extends Error = Error> {
+  private readonly value: Failure<ExplicitErrorType>;
+  private constructor();
   isSuccess(): this is SuccessResult<T>;
 
   isFailure(): this is FailureResult<T, ExplicitErrorType>;

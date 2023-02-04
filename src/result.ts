@@ -72,7 +72,7 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
 
   getOrElse<R extends T>(onFailure: (exception: Error) => R): R {
     if (this.isFailure()) {
-      return onFailure(this.value.exception)
+      return onFailure((this as Result<T>).value.exception)
     }
     return (this as Result<T>).value as R
   }
