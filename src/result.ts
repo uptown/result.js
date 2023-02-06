@@ -2,10 +2,9 @@ import { FailureResult, SuccessResult } from "./types";
 import Failure from "./failure";
 
 export default class Result<T, ExplicitErrorType extends Error = Error> {
-  private readonly value: any;
 
   private constructor(value: any) {
-    this.value = value;
+    (this as unknown as {value: any}).value = value;
   }
 
   static success<T, ExplicitErrorType extends Error = Error>(value: T): SuccessResult<T, ExplicitErrorType> {
@@ -46,58 +45,58 @@ export default class Result<T, ExplicitErrorType extends Error = Error> {
   }
 
   isSuccess(): this is SuccessResult<T, ExplicitErrorType> {
-    return !(this.value instanceof Failure);
+    return !((this as unknown as {value: any}).value instanceof Failure);
   }
 
   isFailure(): this is FailureResult<T, ExplicitErrorType> {
-    return this.value instanceof Failure;
+    return (this as unknown as {value: any}).value instanceof Failure;
   }
 
   getOrNull(): T | null {
     if (this.isFailure()) {
       return null;
     } else {
-      return (this as Result<T>).value as T;
+      return ((this as unknown as {value: any})).value as T;
     }
   }
 
   throwOnFailure() {
-    if (this.value instanceof Failure) throw this.value.exception
+    if ((this as unknown as {value: any}).value instanceof Failure) throw (this as unknown as {value: any}).value.exception
   }
 
   getOrThrow(): T {
     this.throwOnFailure()
-    return this.value as T
+    return (this as unknown as {value: any}).value as T
   }
 
   getOrElse<R extends T>(onFailure: (exception: Error) => R): R {
     if (this.isFailure()) {
-      return onFailure((this as Result<T>).value.exception)
+      return onFailure(((this as unknown as {value: any})).value.exception)
     }
-    return (this as Result<T>).value as R
+    return ((this as unknown as {value: any})).value as R
   }
 
   exceptionOrNull(): ExplicitErrorType | Error | null {
-    if (this.value instanceof Failure) {
-      return this.value.exception;
+    if ((this as unknown as {value: any}).value instanceof Failure) {
+      return (this as unknown as {value: any}).value.exception;
     } else {
       return null;
     }
   }
 
   exception(): ExplicitErrorType | Error {
-    if (this.value instanceof Failure) {
-      return this.value.exception;
+    if ((this as unknown as {value: any}).value instanceof Failure) {
+      return (this as unknown as {value: any}).value.exception;
     } else {
       throw new TypeError(`${this} isn't failed.`)
     }
   }
 
   toString(): string {
-    if (this.value instanceof Failure) {
-      return this.value.toString();
+    if ((this as unknown as {value: any}).value instanceof Failure) {
+      return (this as unknown as {value: any}).value.toString();
     } else {
-      return `Success(${this.value})`;
+      return `Success(${(this as unknown as {value: any}).value})`;
     }
   }
 }

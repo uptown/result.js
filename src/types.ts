@@ -1,7 +1,5 @@
-import Failure from './failure';
 
 export declare class SuccessResult<T, ExplicitErrorType extends Error = Error> {
-  private readonly value: T;
   private constructor();
   isSuccess(): this is SuccessResult<T, ExplicitErrorType>;
 
@@ -23,7 +21,6 @@ export declare class SuccessResult<T, ExplicitErrorType extends Error = Error> {
 }
 
 export declare class FailureResult<T, ExplicitErrorType extends Error = Error> {
-  private readonly value: Failure<ExplicitErrorType>;
   private constructor();
   isSuccess(): this is SuccessResult<T>;
 
